@@ -11,6 +11,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Link } from "expo-router";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import Colors from "@/constants/Colors";
+import * as Haptics from 'expo-haptics';
 
 const categories = [
   {
@@ -43,12 +44,24 @@ const categories = [
   },
 ];
 
-const ExploreHeader = () => {
-    const itemsRef = useRef<Array<TouchableOpacity>>([]);
+interface Props {
+  onCategoryChanged: (category: string) => void
+}
+
+const ExploreHeader = ({onCategoryChanged}: Props) => {
+  const scrollRef = useRef<ScrollView>(null);
+  const itemsRef = useRef<Array<TouchableOpacity>>([]);
     const [activeIndex, setActiveIndex] = useState(0);
 
     const selectCategory = (index: number) => {
-        setActiveIndex(index)
+      const selected = itemsRef.current[index];
+        setActiveIndex(index);
+       selected.measure((x: any) => {
+        scrollRef.current?.scrollTo({x: x -16, y: 0, animated: true})
+       })
+
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+        onCategoryChanged(categories[index].name)
     }
 
   return (
@@ -72,10 +85,13 @@ const ExploreHeader = () => {
           </TouchableOpacity>
         </View>
 
-        <ScrollView horizontal showsHorizontalScrollIndicator={false}
+        <ScrollView 
+        ref={scrollRef}
+        horizontal 
+        showsHorizontalScrollIndicator={false}
         contentContainerStyle={{
             alignItems: 'center',
-            gap: 20,
+            gap: 30,
             paddingHorizontal: 16,
         }}
         >
@@ -86,8 +102,14 @@ const ExploreHeader = () => {
             ref={(el => itemsRef.current[index] = el)}
             style={activeIndex === index ? styles.categoriesBtnActive : styles.categoriesBtn}
             >
-              <MaterialIcons name={item.icon} size={24} />
-              <Text>{item.name}</Text>
+              <MaterialIcons
+               name={item.icon as any} 
+               size={24}
+               color={activeIndex === index ? '#000' : Colors.grey}
+               />
+              <Text
+                style={activeIndex === index ? styles.categoryTextActive : styles.categoryText}
+              >{item.name}</Text>
             </TouchableOpacity>
           ))}
         </ScrollView>
@@ -105,6 +127,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
+    marginTop: 15,
     paddingHorizontal: 24,
     paddingBottom: 16,
     gap: 10,
