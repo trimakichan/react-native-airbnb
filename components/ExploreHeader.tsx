@@ -93,6 +93,7 @@ const ExploreHeader = ({onCategoryChanged}: Props) => {
             alignItems: 'center',
             gap: 30,
             paddingHorizontal: 16,
+            marginTop: 15
         }}
         >
           {categories.map((item, index) => (
@@ -122,6 +123,7 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: "#fff",
     height: 150,
+
   },
   actionRow: {
     flexDirection: "row",
